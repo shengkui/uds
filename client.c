@@ -7,7 +7,7 @@
 *     The example of client using Unix domain socket.
 *
 * REVISION(MM/DD/YYYY):
-*     12/02/2013  Shengkui Leng (shengkui.leng@gmail.com)
+*     12/02/2013  Shengkui Leng (lengshengkui@gmail.com)
 *     - Initial version 
 *
 ******************************************************************************/
