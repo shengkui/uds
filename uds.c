@@ -4,7 +4,7 @@
 *     uds.c
 *
 * DESCRIPTION:
-*     Some API for Unix domain socket.
+*     Define some APIs for Unix domain socket.
 *
 * REVISION(MM/DD/YYYY):
 *     12/02/2013  Shengkui Leng (shengkui.leng@gmail.com)
@@ -163,7 +163,7 @@ static void *request_handle_routine(void *arg)
     uds_request_t *req;
     uds_response_t *resp;
     uint8_t buf[UDS_BUF_SIZE];
-    size_t len, reqlen, resplen;
+    size_t bytes, req_len, resp_len;
 
     if (sc == NULL) {
         pthread_exit(0);
@@ -171,15 +171,15 @@ static void *request_handle_routine(void *arg)
 
     while (1) {
         /* Receive request from client */
-        reqlen = read(sc->client_fd, buf, UDS_BUF_SIZE);
-        if (reqlen <= 0) {
+        req_len = read(sc->client_fd, buf, UDS_BUF_SIZE);
+        if (req_len <= 0) {
             close(sc->client_fd);
             sc->inuse = 0;
             break;
         }
 
-        /* If not all of the data of request have been received, read again! */
-        if (!check_request_packet(buf, reqlen)) {
+        /* Check the integrity of the request packet */
+        if (!check_request_packet(buf, req_len)) {
             continue;
         }
 
@@ -192,17 +192,17 @@ static void *request_handle_routine(void *arg)
             resp->data_len = 0;
         }
 
-        resplen = sizeof(uds_response_t) + resp->data_len;
+        resp_len = sizeof(uds_response_t) + resp->data_len;
         resp->signature = req->signature;
         resp->checksum = 0;
-        resp->checksum = compute_checksum(resp, resplen);
+        resp->checksum = compute_checksum(resp, resp_len);
 
         /* Send response */
-        len = write(sc->client_fd, resp, resplen);
+        bytes = write(sc->client_fd, resp, resp_len);
         if (resp != (uds_response_t *)buf) {
             free(resp);
         }
-        if (len != resplen) {
+        if (bytes != resp_len) {
             close(sc->client_fd);
             sc->inuse = 0;
             break;
@@ -230,7 +230,7 @@ uds_server_t *server_init(request_handler_t req_handler)
 {
     uds_server_t *s;
     struct sockaddr_un addr;
-    int i, ret;
+    int i, rc;
 
     if (req_handler == NULL) {
         printf("invalid parameter!\n");
@@ -264,16 +264,16 @@ uds_server_t *server_init(request_handler_t req_handler)
         return NULL;
     }
 
-    ret = bind(s->sockfd, (struct sockaddr *) &addr, sizeof(addr));
-    if (ret != 0) {
+    rc = bind(s->sockfd, (struct sockaddr *) &addr, sizeof(addr));
+    if (rc != 0) {
         perror("bind error");
         close(s->sockfd);
         free(s);
         return NULL;
     }
 
-    ret = listen(s->sockfd, UDS_MAX_BACKLOG);
-    if (ret != 0) {
+    rc = listen(s->sockfd, UDS_MAX_BACKLOG);
+    if (rc != 0) {
         perror("listen error");
         close(s->sockfd);
         free(s);
@@ -436,7 +436,7 @@ uds_response_t *client_send_request(uds_client_t *sc, uds_request_t *req)
 {
     uds_response_t *resp;
     uint8_t buf[UDS_BUF_SIZE];
-    size_t len, reqlen;
+    size_t bytes, req_len;
 
     if ((sc == NULL) || (req == NULL)) {
         printf("invalid parameter!\n");
@@ -444,26 +444,26 @@ uds_response_t *client_send_request(uds_client_t *sc, uds_request_t *req)
     }
 
     /* Send request */
-    reqlen = sizeof(uds_request_t) + req->data_len;
+    req_len = sizeof(uds_request_t) + req->data_len;
     req->signature = UDS_SIGNATURE;
     req->checksum = 0;
-    req->checksum = compute_checksum(req, reqlen);
-    len = write(sc->sockfd, req, reqlen);
-    if (len != reqlen) {
+    req->checksum = compute_checksum(req, req_len);
+    bytes = write(sc->sockfd, req, req_len);
+    if (bytes != req_len) {
         printf("Send request error\n");
         return NULL;
     }
 
     /* Get response */
-    len = read(sc->sockfd, buf, UDS_BUF_SIZE);
-    if (len <= 0) {
+    bytes = read(sc->sockfd, buf, UDS_BUF_SIZE);
+    if (bytes <= 0) {
         return NULL;
     }
 
-    if (check_response_packet(buf, len)) {
-        resp = malloc(len);
+    if (check_response_packet(buf, bytes)) {
+        resp = malloc(bytes);
         if (resp) {
-            memcpy(resp, buf, len);
+            memcpy(resp, buf, bytes);
         } else {
             perror("malloc error");
         }
