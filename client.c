@@ -18,9 +18,9 @@ int main(void)
 {
     uds_client_t *clnt;
 
-    clnt = client_connect();
+    clnt = client_init();
     if (clnt == NULL) {
-        printf("client: connect error\n");
+        printf("client: init error\n");
         return -1;
     }
 

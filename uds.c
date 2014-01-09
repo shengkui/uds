@@ -60,7 +60,7 @@ static uint16_t compute_checksum(void *data, size_t len)
 
 /******************************************************************************
  * NAME:
- *      check_request_packet
+ *      validate_request_packet
  *
  * DESCRIPTION: 
  *      Verify the integrity of the request data.
@@ -72,7 +72,7 @@ static uint16_t compute_checksum(void *data, size_t len)
  * RETURN:
  *      1 - OK, 0 - FAIL
  ******************************************************************************/
-static int check_request_packet(void *buf, size_t len)
+static int validate_request_packet(void *buf, size_t len)
 {
     uds_request_t *req;
     
@@ -102,7 +102,7 @@ static int check_request_packet(void *buf, size_t len)
 
 /******************************************************************************
  * NAME:
- *      check_response_packet
+ *      validate_response_packet
  *
  * DESCRIPTION: 
  *      Verify the integrity of the response data.
@@ -114,7 +114,7 @@ static int check_request_packet(void *buf, size_t len)
  * RETURN:
  *      1 - OK, 0 - FAIL
  ******************************************************************************/
-static int check_response_packet(void *buf, size_t len)
+static int validate_response_packet(void *buf, size_t len)
 {
     uds_response_t *resp;
 
@@ -148,7 +148,7 @@ static int check_response_packet(void *buf, size_t len)
  *      request_handle_routine
  *
  * DESCRIPTION: 
- *      A thread routine function to receive the request from client,
+ *      A thread function to receive the request from client,
  *      handle the request and send response back to client.
  *
  * PARAMETERS:
@@ -179,7 +179,7 @@ static void *request_handle_routine(void *arg)
         }
 
         /* Check the integrity of the request packet */
-        if (!check_request_packet(buf, req_len)) {
+        if (!validate_request_packet(buf, req_len)) {
             continue;
         }
 
@@ -221,7 +221,7 @@ static void *request_handle_routine(void *arg)
  *      Do some initialzation work for server.
  *
  * PARAMETERS:
- *      req_handler - The function pointer of a user defined requeste handler.
+ *      req_handler - The function pointer of a user-defined request handler.
  *
  * RETURN:
  *      A pointer of server info.
@@ -286,7 +286,7 @@ uds_server_t *server_init(request_handler_t req_handler)
 
 /******************************************************************************
  * NAME:
- *      server_accept
+ *      server_accept_request
  *
  * DESCRIPTION: 
  *      Accept a request from client and start a new thread to process it.
@@ -297,7 +297,7 @@ uds_server_t *server_init(request_handler_t req_handler)
  * RETURN:
  *      0 - OK, Others - Error
  ******************************************************************************/
-int server_accept(uds_server_t *s)
+int server_accept_request(uds_server_t *s)
 {
     s_connect_t *sc;
     int cl, i;
@@ -370,10 +370,10 @@ void server_close(uds_server_t *s)
 
 /******************************************************************************
  * NAME:
- *      client_connect
+ *      client_init
  *
  * DESCRIPTION: 
- *      Connect to the server
+ *      Init client and connect to the server
  *
  * PARAMETERS:
  *      None
@@ -381,7 +381,7 @@ void server_close(uds_server_t *s)
  * RETURN:
  *      A pointer of client info.
  ******************************************************************************/
-uds_client_t *client_connect()
+uds_client_t *client_init()
 {
     uds_client_t *sc;
     struct sockaddr_un addr;
@@ -460,7 +460,7 @@ uds_response_t *client_send_request(uds_client_t *sc, uds_request_t *req)
         return NULL;
     }
 
-    if (check_response_packet(buf, bytes)) {
+    if (validate_response_packet(buf, bytes)) {
         resp = malloc(bytes);
         if (resp) {
             memcpy(resp, buf, bytes);

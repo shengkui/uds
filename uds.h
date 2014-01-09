@@ -97,12 +97,13 @@ typedef struct uds_response_put_msg {
  * Definition for client only
  *--------------------------------------------------------------*/
 
+/* Keep the information of client */
 typedef struct uds_client {
     int sockfd;         /* Socket fd of the client */
 } uds_client_t;
 
 
-uds_client_t *client_connect();
+uds_client_t *client_init();
 uds_response_t *client_send_request(uds_client_t *, uds_request_t *);
 void client_close(uds_client_t *);
 
@@ -116,9 +117,9 @@ void client_close(uds_client_t *);
 #define UDS_MAX_BACKLOG     10
 
 /* The maxium count of client connected */
-#define UDS_MAX_CLIENT      5
+#define UDS_MAX_CLIENT      10
 
-
+/* Keep the information of connection */
 typedef struct s_connect {
     int inuse;                  /* 1: the connection structure is in-use; 0: free */
     int client_fd;              /* Socket fd of the connection */
@@ -129,6 +130,7 @@ typedef struct s_connect {
 
 typedef uds_response_t * (*request_handler_t) (uds_request_t *);
 
+/* Keep the information of server */
 typedef struct uds_server {
     int sockfd;                         /* Socket fd of the server */
     s_connect_t conn[UDS_MAX_CLIENT];   /* Connections managed by server */
@@ -137,7 +139,7 @@ typedef struct uds_server {
 
 
 uds_server_t *server_init(request_handler_t req_handler);
-int server_accept(uds_server_t *s);
+int server_accept_request(uds_server_t *s);
 void server_close(uds_server_t *s);
 
 

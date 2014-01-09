@@ -162,7 +162,7 @@ int main(void)
     install_sig_handler();
 
     while (loop_flag) {
-        server_accept(s);
+        server_accept_request(s);
     }
 
     server_close(s);

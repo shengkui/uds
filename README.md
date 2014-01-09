@@ -8,7 +8,8 @@
 Description
 -----------
 This project is a demo for how to use Unix domain socket(Local socket) to
-communicate between client and server.
+communicate between client and server.  And the server supports multiple
+clients via multi-threading.
 
 * * *
 
