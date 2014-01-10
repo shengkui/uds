@@ -332,6 +332,8 @@ int server_accept_request(uds_server_t *s)
     sc->client_fd = cl;
     if (pthread_create(&sc->thread_id, NULL, request_handle_routine, sc) != 0) {
         perror("pthread_create error");
+        close(cl);
+        sc->inuse = 1;
         return -1;
     }
 
