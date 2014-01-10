@@ -309,7 +309,8 @@ int server_accept_request(uds_server_t *s)
 
     cl = accept(s->sockfd, NULL, NULL);
     if (cl < 0) {
-        return cl;
+        perror("accept error");
+        return -1;
     }
 
     /* Find a slot for the connection */
@@ -320,7 +321,7 @@ int server_accept_request(uds_server_t *s)
     }
 
     if (i >= UDS_MAX_CLIENT) {
-        printf("Too many connections\n");
+        printf("too many connections\n");
         close(cl);
         return -1;
     }
@@ -329,9 +330,12 @@ int server_accept_request(uds_server_t *s)
     sc = &s->conn[i];
     sc->inuse = 1;
     sc->client_fd = cl;
-    pthread_create(&sc->thread_id, NULL, request_handle_routine, sc);
+    if (pthread_create(&sc->thread_id, NULL, request_handle_routine, sc) != 0) {
+        perror("pthread_create error");
+        return -1;
+    }
 
-    return cl;
+    return 0;
 }
 
 

@@ -19,7 +19,7 @@ Build
 
 (2) chdir to the source code directory.
 
-(3) run "make"
+(3) Run "make"
 
 
 Run
@@ -28,7 +28,7 @@ Run
 
   $ ./server
 
-(2) Use the client to send request to the server:
+(2) Start the client to send request to server:
 
   $ ./client
 
