@@ -257,7 +257,7 @@ uds_server_t *server_init(request_handler_t req_handler)
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, UDS_SOCK_PATH);
 
-    s->sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    s->sockfd = socket(AF_UNIX, UDS_SOCK_TYPE, 0);
     if (s->sockfd < 0) {
         perror("socket error");
         free(s);
@@ -404,7 +404,7 @@ uds_client_t *client_init()
     addr.sun_family = AF_UNIX;
     strcpy(addr.sun_path, UDS_SOCK_PATH);
 
-    fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    fd = socket(AF_UNIX, UDS_SOCK_TYPE, 0);
     if (fd < 0) {
         perror("socket error");
         free(sc);

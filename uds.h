@@ -26,6 +26,10 @@
 /* The pathname of unix domain socket */
 #define UDS_SOCK_PATH           "/tmp/uds_sock.1234"
 
+/* The socket type we used */
+#define UDS_SOCK_TYPE           SOCK_STREAM
+//#define UDS_SOCK_TYPE         SOCK_SEQPACKET
+
 
 /* The read/write buffer size of unix domain socket */
 #define UDS_BUF_SIZE            512
