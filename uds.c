@@ -456,13 +456,14 @@ uds_response_t *client_send_request(uds_client_t *sc, uds_request_t *req)
     req->checksum = compute_checksum(req, req_len);
     bytes = write(sc->sockfd, req, req_len);
     if (bytes != req_len) {
-        printf("Send request error\n");
+        printf("send request error\n");
         return NULL;
     }
 
     /* Get response */
     bytes = read(sc->sockfd, buf, UDS_BUF_SIZE);
     if (bytes <= 0) {
+        printf("receive response error\n");
         return NULL;
     }
 
