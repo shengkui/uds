@@ -2,7 +2,7 @@ SERVER=server
 CLIENT=client
 OBJS=uds.o
 
-CFLAGS=-Wall -O #-g
+CFLAGS=-Wall -O2 #-g
 LDFLAGS+=-pthread
 #CC=gcc
 #RM=rm -f

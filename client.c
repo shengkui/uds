@@ -81,7 +81,7 @@ int main(void)
         req.command = CMD_PUT_MSG;
         req.data_len = strlen(str)+1;
         snprintf((char *)req.data, UDS_REQ_DATA_SIZE-1, "%s", str);
-        req.data[UDS_REQ_DATA_SIZE] = 0;
+        req.data[UDS_REQ_DATA_SIZE-1] = 0;
 
         res = (uds_response_put_msg_t *)client_send_request(clnt, &req);
         if (res == NULL) {
