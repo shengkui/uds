@@ -91,7 +91,7 @@ static int validate_request_packet(void *buf, size_t len)
         return 0;
     }
 
-    if (compute_checksum(buf, len)) {
+    if (compute_checksum(buf, len) != 0) {
         printf("invalid checksum of request data\n");
         return 0;
     }
@@ -133,7 +133,7 @@ static int validate_response_packet(void *buf, size_t len)
         return 0;
     }
 
-    if (compute_checksum(buf, len)) {
+    if (compute_checksum(buf, len) != 0) {
         printf("invalid checksum of response data\n");
         return 0;
     }
@@ -187,7 +187,7 @@ static void *request_handle_routine(void *arg)
         req = (uds_request_t *)buf;
         resp = sc->serv->request_handler(req);
         if (resp == NULL) {
-            resp = (uds_response_t *)buf;
+            resp = (uds_response_t *)buf;   /* Use a local buffer */
             resp->status = STATUS_ERROR;
             resp->data_len = 0;
         }
@@ -199,7 +199,7 @@ static void *request_handle_routine(void *arg)
 
         /* Send response */
         bytes = write(sc->client_fd, resp, resp_len);
-        if (resp != (uds_response_t *)buf) {
+        if (resp != (uds_response_t *)buf) {    /* If NOT local buffer, free it */
             free(resp);
         }
         if (bytes != resp_len) {
