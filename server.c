@@ -29,8 +29,8 @@ uds_response_t *cmd_get_version(void)
 
     ver = malloc(sizeof(uds_response_version_t));
     if (ver != NULL) {
-        ver->resp.status = STATUS_SUCCESS;
-        ver->resp.data_len = 2;
+        ver->common.status = STATUS_SUCCESS;
+        ver->common.data_len = 2;
         ver->major = 1;
         ver->minor = 0;
     }
@@ -51,8 +51,8 @@ uds_response_t *cmd_get_msg(void)
 
     res = malloc(sizeof(uds_response_get_msg_t));
     if (res != NULL) {
-        res->resp.status = STATUS_SUCCESS;
-        res->resp.data_len = strlen(str);
+        res->common.status = STATUS_SUCCESS;
+        res->common.data_len = strlen(str);
         snprintf(res->data, UDS_GET_MSG_SIZE, "%s", str);
         res->data[UDS_GET_MSG_SIZE-1] = 0;
     }
@@ -67,15 +67,16 @@ uds_response_t *cmd_get_msg(void)
 uds_response_t *cmd_put_msg(uds_request_t *req)
 {
     uds_response_put_msg_t *res;
+    uds_request_put_msg_t *put_msg = (uds_request_put_msg_t *)req;
 
     printf("CMD_PUT_MSG\n");
 
-    printf("Message: %s\n", (char *)req->data);
+    printf("Message: %s\n", (char *)put_msg->data);
 
     res = malloc(sizeof(uds_response_put_msg_t));
     if (res != NULL) {
-        res->resp.status = STATUS_SUCCESS;
-        res->resp.data_len = 0;
+        res->common.status = STATUS_SUCCESS;
+        res->common.data_len = 0;
     }
 
     return (uds_response_t *)res;

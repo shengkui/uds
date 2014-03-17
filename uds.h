@@ -47,13 +47,11 @@ enum request_type {
 
 
 /* Common structure of request */
-#define UDS_REQ_DATA_SIZE       128
 typedef struct uds_request {
     uint32_t signature;                 /* Signature, shall be UDS_SIGNATURE */
     uint32_t command;                   /* Refer enum request_type */
     uint16_t data_len;                  /* The length of request data */
     uint16_t checksum;                  /* The checksum of this structure */
-    uint8_t data[UDS_REQ_DATA_SIZE];    /* request data */
 } __attribute__ ((packed)) uds_request_t;
 
 
@@ -76,7 +74,7 @@ typedef struct uds_response {
 
 /* Response for CMD_GET_VERSION */
 typedef struct uds_response_version {
-    uds_response_t resp;        /* Common header of response */
+    uds_response_t common;      /* Common header of response */
     uint8_t major;              /* Major version */
     uint8_t minor;              /* Minor version */
 } __attribute__ ((packed)) uds_response_version_t;
@@ -85,14 +83,21 @@ typedef struct uds_response_version {
 /* Response for CMD_GET_MSG */
 #define UDS_GET_MSG_SIZE        256
 typedef struct uds_response_get_msg {
-    uds_response_t resp;            /* Common header of response */
+    uds_response_t common;          /* Common header of response */
     char data[UDS_GET_MSG_SIZE];    /* Data get from server */
 } __attribute__ ((packed)) uds_response_get_msg_t;
 
 
 /* Response for CMD_PUT_MSG */
+#define UDS_PUT_MSG_SIZE        256
+typedef struct uds_request_put_msg {
+    uds_request_t common;               /* Common header of request */
+    uint8_t data[UDS_PUT_MSG_SIZE];    /* Request data */
+} __attribute__ ((packed)) uds_request_put_msg_t;
+
+/* Response for CMD_PUT_MSG */
 typedef struct uds_response_put_msg {
-    uds_response_t resp;        /* Common header of response */
+    uds_response_t common;              /* Common header of response */
 } __attribute__ ((packed)) uds_response_put_msg_t;
 
 

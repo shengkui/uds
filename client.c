@@ -39,10 +39,10 @@ int main(void)
             return -2;
         }
 
-        if (ver->resp.status == STATUS_SUCCESS) {
+        if (ver->common.status == STATUS_SUCCESS) {
             printf("Version: %d.%d\n", ver->major, ver->minor);
         } else {
-            printf("client: CMD_GET_VERSION error(%d)\n", ver->resp.status);
+            printf("client: CMD_GET_VERSION error(%d)\n", ver->common.status);
         }
 
         free(ver);
@@ -63,10 +63,10 @@ int main(void)
             return -3;
         }
 
-        if (res->resp.status == STATUS_SUCCESS) {
+        if (res->common.status == STATUS_SUCCESS) {
             printf("Message: %s\n", res->data);
         } else {
-            printf("client: CMD_GET_MSG error(%d)\n", res->resp.status);
+            printf("client: CMD_GET_MSG error(%d)\n", res->common.status);
         }
 
         free(res);
@@ -74,26 +74,26 @@ int main(void)
 
     /********************** Put message to server ***********************/
     {
-        uds_request_t req;
+        uds_request_put_msg_t req;
         uds_response_put_msg_t *res;
         char str[] = "This is a message from client";
 
-        req.command = CMD_PUT_MSG;
-        req.data_len = strlen(str)+1;
-        snprintf((char *)req.data, UDS_REQ_DATA_SIZE-1, "%s", str);
-        req.data[UDS_REQ_DATA_SIZE-1] = 0;
+        req.common.command = CMD_PUT_MSG;
+        req.common.data_len = strlen(str)+1;
+        snprintf((char *)req.data, UDS_PUT_MSG_SIZE-1, "%s", str);
+        req.data[UDS_PUT_MSG_SIZE-1] = 0;
 
-        res = (uds_response_put_msg_t *)client_send_request(clnt, &req);
+        res = (uds_response_put_msg_t *)client_send_request(clnt, (uds_request_t *)&req);
         if (res == NULL) {
             printf("client: send request error\n");
             client_close(clnt);
             return -3;
         }
 
-        if (res->resp.status == STATUS_SUCCESS) {
+        if (res->common.status == STATUS_SUCCESS) {
             printf("client: CMD_PUT_MSG OK\n");
         } else {
-            printf("client: CMD_PUT_MSG error(%d)\n", res->resp.status);
+            printf("client: CMD_PUT_MSG error(%d)\n", res->common.status);
         }
 
         free(res);
