@@ -48,10 +48,10 @@ enum request_type {
 
 /* Common structure of request */
 typedef struct uds_request {
-    uint32_t signature;                 /* Signature, shall be UDS_SIGNATURE */
-    uint32_t command;                   /* Refer enum request_type */
-    uint16_t data_len;                  /* The length of request data */
-    uint16_t checksum;                  /* The checksum of this structure */
+    uint32_t signature;         /* Signature, shall be UDS_SIGNATURE */
+    uint32_t command;           /* Refer enum request_type */
+    uint16_t data_len;          /* The length of request data */
+    uint16_t checksum;          /* The checksum of this structure */
 } __attribute__ ((packed)) uds_request_t;
 
 
@@ -88,11 +88,11 @@ typedef struct uds_response_get_msg {
 } __attribute__ ((packed)) uds_response_get_msg_t;
 
 
-/* Response for CMD_PUT_MSG */
+/* Request for CMD_PUT_MSG */
 #define UDS_PUT_MSG_SIZE        256
 typedef struct uds_request_put_msg {
     uds_request_t common;               /* Common header of request */
-    uint8_t data[UDS_PUT_MSG_SIZE];    /* Request data */
+    uint8_t data[UDS_PUT_MSG_SIZE];     /* Request data */
 } __attribute__ ((packed)) uds_request_put_msg_t;
 
 /* Response for CMD_PUT_MSG */
