@@ -50,7 +50,7 @@ static uint16_t compute_checksum(void *data, size_t len)
         chksum += word[i];
     }
 
-    if (i & 1) {
+    if (len & 1) {
         byte = data;
         chksum += byte[len-1];
     }
