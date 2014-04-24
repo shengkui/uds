@@ -24,37 +24,45 @@
  *      compute_checksum
  *
  * DESCRIPTION: 
- *      Compute 16-bit One's Complement sum of data.
+ *      Compute 16-bit One's Complement sum of data. (The algorithm comes from
+ *      RFC-1071)
  *      NOTES: Before call this function, please set the checksum field to 0.
  *
  * PARAMETERS:
- *      data - The data to compute checksum
- *      len  - The length of data.
+ *      buf  - The data buffer
+ *      len  - The length of data(bytes).
  *
  * RETURN:
  *      Checksum
  ******************************************************************************/
-static uint16_t compute_checksum(void *data, size_t len)
+static uint16_t compute_checksum(void *buf, size_t len)
 {
     uint16_t *word;
     uint8_t *byte;
     size_t i;
-    uint16_t chksum = 0;
+    unsigned long sum = 0;
 
-    if (data == NULL) {
+    if (!buf) {
         return 0;
     }
 
-    word = data;
+    word = buf;
     for (i = 0; i < len/2; i++) {
-        chksum += word[i];
+        sum += word[i];
     }
 
+    /* If the length(bytes) of data buffer is an odd number, add the last byte. */
     if (len & 1) {
-        byte = data;
-        chksum += byte[len-1];
+        byte = buf;
+        sum += byte[len-1];
     }
-    return (~chksum);
+
+    /* Take only 16 bits out of the sum and add up the carries */
+    while (sum>>16) {
+        sum = (sum>>16) + (sum&0xFFFF);
+    }
+
+    return (uint16_t)(~sum);
 }
 
 
