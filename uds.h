@@ -91,8 +91,8 @@ typedef struct uds_response_get_msg {
 /* Request for CMD_PUT_MSG */
 #define UDS_PUT_MSG_SIZE        256
 typedef struct uds_request_put_msg {
-    uds_request_t common;               /* Common header of request */
-    uint8_t data[UDS_PUT_MSG_SIZE];     /* Request data */
+    uds_request_t common;           /* Common header of request */
+    char data[UDS_PUT_MSG_SIZE];    /* Request data */
 } __attribute__ ((packed)) uds_request_put_msg_t;
 
 /* Response for CMD_PUT_MSG */
