@@ -2,7 +2,7 @@
 ==============================
 **Author**: Shengkui Leng
 
-**E-mail**: lengshengkui@gmail.com
+**E-mail**: lengshengkui@outlook.com
 
 
 Description
