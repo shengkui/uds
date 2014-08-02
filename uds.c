@@ -35,11 +35,11 @@
  * RETURN:
  *      Checksum
  ******************************************************************************/
-static uint16_t compute_checksum(void *buf, size_t len)
+static uint16_t compute_checksum(void *buf, ssize_t len)
 {
     uint16_t *word;
     uint8_t *byte;
-    size_t i;
+    ssize_t i;
     unsigned long sum = 0;
 
     if (!buf) {
@@ -80,7 +80,7 @@ static uint16_t compute_checksum(void *buf, size_t len)
  * RETURN:
  *      1 - OK, 0 - FAIL
  ******************************************************************************/
-static int validate_request_packet(void *buf, size_t len)
+static int validate_request_packet(void *buf, ssize_t len)
 {
     uds_request_t *req;
     
@@ -122,7 +122,7 @@ static int validate_request_packet(void *buf, size_t len)
  * RETURN:
  *      1 - OK, 0 - FAIL
  ******************************************************************************/
-static int validate_response_packet(void *buf, size_t len)
+static int validate_response_packet(void *buf, ssize_t len)
 {
     uds_response_t *resp;
 
@@ -171,7 +171,7 @@ static void *request_handle_routine(void *arg)
     uds_request_t *req;
     uds_response_t *resp;
     uint8_t buf[UDS_BUF_SIZE];
-    size_t bytes, req_len, resp_len;
+    ssize_t bytes, req_len, resp_len;
 
     if (sc == NULL) {
         pthread_exit(0);
@@ -450,7 +450,7 @@ uds_response_t *client_send_request(uds_client_t *sc, uds_request_t *req)
 {
     uds_response_t *resp;
     uint8_t buf[UDS_BUF_SIZE];
-    size_t bytes, req_len;
+    ssize_t bytes, req_len;
 
     if ((sc == NULL) || (req == NULL)) {
         printf("invalid parameter!\n");
