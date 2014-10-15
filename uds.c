@@ -179,7 +179,7 @@ static void *request_handle_routine(void *arg)
 
     while (1) {
         /* Receive request from client */
-        req_len = read(sc->client_fd, buf, UDS_BUF_SIZE);
+        req_len = recv(sc->client_fd, buf, UDS_BUF_SIZE, 0);
         if (req_len <= 0) {
             close(sc->client_fd);
             sc->inuse = 0;
@@ -206,7 +206,7 @@ static void *request_handle_routine(void *arg)
         resp->checksum = compute_checksum(resp, resp_len);
 
         /* Send response */
-        bytes = write(sc->client_fd, resp, resp_len);
+        bytes = send(sc->client_fd, resp, resp_len, MSG_NOSIGNAL);
         if (resp != (uds_response_t *)buf) {    /* If NOT local buffer, free it */
             free(resp);
         }
@@ -462,14 +462,14 @@ uds_response_t *client_send_request(uds_client_t *sc, uds_request_t *req)
     req->signature = UDS_SIGNATURE;
     req->checksum = 0;
     req->checksum = compute_checksum(req, req_len);
-    bytes = write(sc->sockfd, req, req_len);
+    bytes = send(sc->sockfd, req, req_len, MSG_NOSIGNAL);
     if (bytes != req_len) {
         perror("send request error\n");
         return NULL;
     }
 
     /* Get response */
-    bytes = read(sc->sockfd, buf, UDS_BUF_SIZE);
+    bytes = recv(sc->sockfd, buf, UDS_BUF_SIZE, 0);
     if (bytes <= 0) {
         perror("receive response error\n");
         return NULL;

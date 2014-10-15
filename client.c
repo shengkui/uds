@@ -99,7 +99,7 @@ int main(void)
         free(res);
     }
 
-    /********************** Send an unkown request to server ***********************/
+    /********************** Send an unknown request to server ***********************/
     {
         uds_request_t req;
         uds_response_t *res;
