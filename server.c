@@ -21,13 +21,13 @@ volatile sig_atomic_t loop_flag = 1;
 /*
  * Return the version of server.
  */
-uds_response_t *cmd_get_version(void)
+uds_command_t *cmd_get_version(void)
 {
     uds_response_version_t *ver;
 
     printf("CMD_GET_VERSION\n");
 
-    ver = malloc(sizeof(uds_response_version_t));
+    ver = (uds_response_version_t *)malloc(sizeof(uds_response_version_t));
     if (ver != NULL) {
         ver->common.status = STATUS_SUCCESS;
         ver->common.data_len = 2;
@@ -35,21 +35,21 @@ uds_response_t *cmd_get_version(void)
         ver->minor = 0;
     }
 
-    return (uds_response_t *)ver;
+    return (uds_command_t *)ver;
 }
 
 
 /*
  * Get a message string from server
  */
-uds_response_t *cmd_get_msg(void)
+uds_command_t *cmd_get_msg(void)
 {
     uds_response_get_msg_t *res;
-    char *str = "This is a message from the server.";
+    const char *str = "This is a message from the server.";
 
-    printf("CMD_GET_MSG\n");
+    printf("CMD_GET_MESSAGE\n");
 
-    res = malloc(sizeof(uds_response_get_msg_t));
+    res = (uds_response_get_msg_t *)malloc(sizeof(uds_response_get_msg_t));
     if (res != NULL) {
         res->common.status = STATUS_SUCCESS;
         res->common.data_len = strlen(str);
@@ -57,42 +57,42 @@ uds_response_t *cmd_get_msg(void)
         res->data[UDS_GET_MSG_SIZE-1] = 0;
     }
 
-    return (uds_response_t *)res;
+    return (uds_command_t *)res;
 }
 
 
 /*
  * Send a message string to server
  */
-uds_response_t *cmd_put_msg(uds_request_t *req)
+uds_command_t *cmd_put_msg(uds_command_t *req)
 {
-    uds_response_put_msg_t *res;
+    uds_command_t *res;
     uds_request_put_msg_t *put_msg = (uds_request_put_msg_t *)req;
 
-    printf("CMD_PUT_MSG\n");
+    printf("CMD_PUT_MESSAGE\n");
 
     printf("Message: %s\n", (char *)put_msg->data);
 
-    res = malloc(sizeof(uds_response_put_msg_t));
+    res = (uds_command_t *)malloc(sizeof(uds_command_t));
     if (res != NULL) {
-        res->common.status = STATUS_SUCCESS;
-        res->common.data_len = 0;
+        res->status = STATUS_SUCCESS;
+        res->data_len = 0;
     }
 
-    return (uds_response_t *)res;
+    return (uds_command_t *)res;
 }
 
 
 /*
  * Unknown request type
  */
-uds_response_t *cmd_unknown(uds_request_t *req)
+uds_command_t *cmd_unknown(uds_command_t *req)
 {
-    uds_response_t *res;
+    uds_command_t *res;
 
     printf("Unknown requester type\n");
 
-    res = malloc(sizeof(uds_response_t));
+    res = (uds_command_t *)malloc(sizeof(uds_command_t));
     if (res != NULL) {
         res->status = STATUS_INVALID_COMMAND;
         res->data_len = 0;
@@ -105,20 +105,20 @@ uds_response_t *cmd_unknown(uds_request_t *req)
 /*
  * The handler to handle all requests from client
  */
-uds_response_t *my_request_handler(uds_request_t *req)
+uds_command_t *my_request_handler(uds_command_t *req)
 {
-    uds_response_t *resp = NULL;
+    uds_command_t *resp = NULL;
 
     switch (req->command) {
     case CMD_GET_VERSION:
         resp = cmd_get_version();
         break;
 
-    case CMD_GET_MSG:
+    case CMD_GET_MESSAGE:
         resp = cmd_get_msg();
         break;
         
-    case CMD_PUT_MSG:
+    case CMD_PUT_MESSAGE:
         resp = cmd_put_msg(req);
         break;
         
@@ -154,7 +154,7 @@ int main(void)
 {
     uds_server_t *s;
 
-    s = server_init(&my_request_handler);
+    s = server_init(UDS_SOCK_PATH, &my_request_handler);
     if (s == NULL) {
         printf("server: init error\n");
         return -1;
@@ -169,4 +169,3 @@ int main(void)
     server_close(s);
     return 0;
 }
-

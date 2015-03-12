@@ -2,19 +2,16 @@ SERVER=server
 CLIENT=client
 OBJS=uds.o
 
-CFLAGS=-Wall -O2 #-g
+CFLAGS=-Wall -O2
 LDFLAGS+=-pthread
-#CC=gcc
-#RM=rm -f
-
 
 all: $(SERVER) $(CLIENT)
 
 $(SERVER): $(OBJS) $(SERVER).o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(CLIENT): $(OBJS) $(CLIENT).o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -23,4 +20,3 @@ $(CLIENT): $(OBJS) $(CLIENT).o
 .PHONY: clean
 clean:
 	$(RM) *.o *~ $(CLIENT) $(SERVER)
-

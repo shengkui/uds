@@ -9,6 +9,8 @@
 * REVISION(MM/DD/YYYY):
 *     12/02/2013  Shengkui Leng (lengshengkui@outlook.com)
 *     - Initial version 
+*     12/11/2014  Shengkui Leng (lengshengkui@outlook.com)
+*     - Define a common header for both request and response packets.
 *
 ******************************************************************************/
 #ifndef _UDS_H_
@@ -20,7 +22,7 @@
 
 
 /*--------------------------------------------------------------
- * Common Definition for both client and server
+ * Definition for both client and server
  *--------------------------------------------------------------*/
 
 /* The pathname of unix domain socket */
@@ -31,29 +33,22 @@
 //#define UDS_SOCK_TYPE         SOCK_SEQPACKET
 
 
-/* The read/write buffer size of unix domain socket */
-#define UDS_BUF_SIZE            512
+/* The read/write buffer size of socket */
+#define UDS_BUF_SIZE            1024
 
 /* The signature of the request/response packet */
 #define UDS_SIGNATURE           0xDEADBEEF
 
+/* Make a structure 1-byte aligned */
+#define BYTE_ALIGNED            __attribute__((packed))
+
 
 /* Request type */
-enum request_type {
-    CMD_GET_VERSION = 1,        /* Get the version of server */
-    CMD_GET_MSG,                /* Receive a message from server */
-    CMD_PUT_MSG                 /* Send a message to server */
+enum uds_command_type {
+    CMD_GET_VERSION = 0x8001,   /* Get the version of server */
+    CMD_GET_MESSAGE,            /* Receive a message from server */
+    CMD_PUT_MESSAGE             /* Send a message to server */
 };
-
-
-/* Common structure of request */
-typedef struct uds_request {
-    uint32_t signature;         /* Signature, shall be UDS_SIGNATURE */
-    uint32_t command;           /* Refer enum request_type */
-    uint16_t data_len;          /* The length of request data */
-    uint16_t checksum;          /* The checksum of this structure */
-} __attribute__ ((packed)) uds_request_t;
-
 
 /* The status code */
 enum uds_status_code {
@@ -62,44 +57,41 @@ enum uds_status_code {
     STATUS_ERROR                /* Generic error */
 };
 
-
-/* Common header of response */
-typedef struct uds_response {
+/* Common header of both request/response packets */
+typedef struct uds_command {
     uint32_t signature;         /* Signature, shall be UDS_SIGNATURE */
-    uint32_t status;            /* Refer enum status_code */
-    uint16_t data_len;          /* The length of response data */
-    uint16_t checksum;          /* The checksum of the response structure */
-} __attribute__ ((packed)) uds_response_t;
+    union {
+        uint32_t command;       /* Request type, refer uds_command_type */
+        uint32_t status;        /* Status code of response, refer uds_status_code */
+    };
+    uint32_t data_len;          /* The data length of packet */
+
+    uint16_t checksum;          /* The checksum of the packet */
+} BYTE_ALIGNED uds_command_t;
 
 
 /* Response for CMD_GET_VERSION */
 typedef struct uds_response_version {
-    uds_response_t common;      /* Common header of response */
+    uds_command_t common;       /* Common header of response */
     uint8_t major;              /* Major version */
     uint8_t minor;              /* Minor version */
-} __attribute__ ((packed)) uds_response_version_t;
+} BYTE_ALIGNED uds_response_version_t;
 
 
-/* Response for CMD_GET_MSG */
+/* Response for CMD_GET_MESSAGE */
 #define UDS_GET_MSG_SIZE        256
 typedef struct uds_response_get_msg {
-    uds_response_t common;          /* Common header of response */
-    char data[UDS_GET_MSG_SIZE];    /* Data get from server */
-} __attribute__ ((packed)) uds_response_get_msg_t;
+    uds_command_t common;           /* Common header of response */
+    char data[UDS_GET_MSG_SIZE];    /* Data from server to client */
+} BYTE_ALIGNED uds_response_get_msg_t;
 
 
-/* Request for CMD_PUT_MSG */
-#define UDS_PUT_MSG_SIZE        256
+/* Request for CMD_PUT_MESSAGE */
+#define UDS_PUT_MSG_SIZE       256
 typedef struct uds_request_put_msg {
-    uds_request_t common;           /* Common header of request */
-    char data[UDS_PUT_MSG_SIZE];    /* Request data */
-} __attribute__ ((packed)) uds_request_put_msg_t;
-
-/* Response for CMD_PUT_MSG */
-typedef struct uds_response_put_msg {
-    uds_response_t common;              /* Common header of response */
-} __attribute__ ((packed)) uds_response_put_msg_t;
-
+    uds_command_t common;           /* Common header of request */
+    char data[UDS_PUT_MSG_SIZE];    /* Data from client to server */
+} BYTE_ALIGNED uds_request_put_msg_t;
 
 
 /*--------------------------------------------------------------
@@ -112,9 +104,9 @@ typedef struct uds_client {
 } uds_client_t;
 
 
-uds_client_t *client_init();
-uds_response_t *client_send_request(uds_client_t *, uds_request_t *);
-void client_close(uds_client_t *);
+uds_client_t *client_init(const char *sock_path);
+uds_command_t *client_send_request(uds_client_t *c, uds_command_t *req);
+void client_close(uds_client_t *s);
 
 
 
@@ -128,29 +120,27 @@ void client_close(uds_client_t *);
 /* The maxium count of client connected */
 #define UDS_MAX_CLIENT      10
 
+typedef uds_command_t * (*request_handler_t) (uds_command_t *);
+
 /* Keep the information of connection */
-typedef struct s_connect {
+typedef struct uds_connect {
     int inuse;                  /* 1: the connection structure is in-use; 0: free */
     int client_fd;              /* Socket fd of the connection */
-    pthread_t thread_id;        /* The id of request handle thread */
-    struct uds_server *serv;    /* The pointer of uds_server structure */
-} s_connect_t;
-
-
-typedef uds_response_t * (*request_handler_t) (uds_request_t *);
+    pthread_t thread_id;        /* The thread id of request handler */
+    struct uds_server *serv;    /* The pointer of uds_server who own the connection */
+} uds_connect_t;
 
 /* Keep the information of server */
 typedef struct uds_server {
     int sockfd;                         /* Socket fd of the server */
-    s_connect_t conn[UDS_MAX_CLIENT];   /* Connections managed by server */
-    request_handler_t request_handler;  /* function pointer of the request handle */
+    uds_connect_t conn[UDS_MAX_CLIENT]; /* Connections managed by server */
+    request_handler_t request_handler;  /* Function pointer of the request handle */
 } uds_server_t;
 
 
-uds_server_t *server_init(request_handler_t req_handler);
+uds_server_t *server_init(const char *sock_path, request_handler_t req_handler);
 int server_accept_request(uds_server_t *s);
 void server_close(uds_server_t *s);
 
 
 #endif /* _UDS_H_ */
-

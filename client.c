@@ -18,7 +18,7 @@ int main(void)
 {
     uds_client_t *clnt;
 
-    clnt = client_init();
+    clnt = client_init(UDS_SOCK_PATH);
     if (clnt == NULL) {
         printf("client: init error\n");
         return -1;
@@ -26,7 +26,7 @@ int main(void)
 
     /********************** Get version of server ***********************/
     {
-        uds_request_t req;
+        uds_command_t req;
         uds_response_version_t *ver;
 
         req.command = CMD_GET_VERSION;
@@ -40,7 +40,12 @@ int main(void)
         }
 
         if (ver->common.status == STATUS_SUCCESS) {
-            printf("Version: %d.%d\n", ver->major, ver->minor);
+            if (ver->common.data_len !=
+                    (sizeof(uds_response_version_t) - sizeof(uds_command_t)) ) {
+                printf("Invalid data length\n");
+            } else {
+                printf("Version: %d.%d\n", ver->major, ver->minor);
+            }
         } else {
             printf("client: CMD_GET_VERSION error(%d)\n", ver->common.status);
         }
@@ -50,10 +55,10 @@ int main(void)
 
     /********************** Get message from server ***********************/
     {
-        uds_request_t req;
+        uds_command_t req;
         uds_response_get_msg_t *res;
 
-        req.command = CMD_GET_MSG;
+        req.command = CMD_GET_MESSAGE;
         req.data_len = 0;
 
         res = (uds_response_get_msg_t *)client_send_request(clnt, &req);
@@ -66,7 +71,7 @@ int main(void)
         if (res->common.status == STATUS_SUCCESS) {
             printf("Message: %s\n", res->data);
         } else {
-            printf("client: CMD_GET_MSG error(%d)\n", res->common.status);
+            printf("client: CMD_GET_MESSAGE error(%d)\n", res->common.status);
         }
 
         free(res);
@@ -75,25 +80,25 @@ int main(void)
     /********************** Put message to server ***********************/
     {
         uds_request_put_msg_t req;
-        uds_response_put_msg_t *res;
+        uds_command_t *res;
         char str[] = "This is a message from client";
 
-        req.common.command = CMD_PUT_MSG;
+        req.common.command = CMD_PUT_MESSAGE;
         req.common.data_len = strlen(str)+1;
         snprintf((char *)req.data, UDS_PUT_MSG_SIZE-1, "%s", str);
         req.data[UDS_PUT_MSG_SIZE-1] = 0;
 
-        res = (uds_response_put_msg_t *)client_send_request(clnt, (uds_request_t *)&req);
+        res = (uds_command_t *)client_send_request(clnt, (uds_command_t *)&req);
         if (res == NULL) {
             printf("client: send request error\n");
             client_close(clnt);
             return -3;
         }
 
-        if (res->common.status == STATUS_SUCCESS) {
-            printf("client: CMD_PUT_MSG OK\n");
+        if (res->status == STATUS_SUCCESS) {
+            printf("client: CMD_PUT_MESSAGE OK\n");
         } else {
-            printf("client: CMD_PUT_MSG error(%d)\n", res->common.status);
+            printf("client: CMD_PUT_MESSAGE error(%d)\n", res->status);
         }
 
         free(res);
@@ -101,13 +106,13 @@ int main(void)
 
     /********************** Send an unknown request to server ***********************/
     {
-        uds_request_t req;
-        uds_response_t *res;
+        uds_command_t req;
+        uds_command_t *res;
 
         req.command = 0xFFFF;
         req.data_len = 0;
 
-        res = (uds_response_t *)client_send_request(clnt, &req);
+        res = (uds_command_t *)client_send_request(clnt, &req);
         if (res == NULL) {
             printf("client: send request error\n");
             client_close(clnt);
@@ -122,4 +127,3 @@ int main(void)
     client_close(clnt);
     return 0;
 }
-
