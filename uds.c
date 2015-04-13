@@ -492,14 +492,14 @@ int server_accept_request(uds_server_t *s)
         return -1;
     }
 
-    /* Start a new thread to handle the resuest */
+    /* Start a new thread to handle the request */
     sc = &s->conn[i];
     sc->inuse = 1;
     sc->client_fd = cl;
     if (pthread_create(&sc->thread_id, NULL, request_handle_routine, sc) != 0) {
         perror("pthread_create error");
         close(cl);
-        sc->inuse = 1;
+        sc->inuse = 0;
         return -1;
     }
 
