@@ -90,7 +90,7 @@ uds_command_t *cmd_unknown(uds_command_t *req)
 {
     uds_command_t *res;
 
-    printf("Unknown requester type\n");
+    printf("Unknown request type\n");
 
     res = (uds_command_t *)malloc(sizeof(uds_command_t));
     if (res != NULL) {
