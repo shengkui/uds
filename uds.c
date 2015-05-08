@@ -280,12 +280,13 @@ static int verify_command_packet(void *buf, size_t len)
     pkt = (uds_command_t *)buf;
     
     if (pkt->signature != UDS_SIGNATURE) {
-        printf("Error: invalid signature of packet\n");
+        printf("Error: invalid signature of packet (0x%08X)\n", pkt->signature);
         return 0;
     }
 
     if (pkt->data_len + sizeof(uds_command_t) != len) {
-        printf("Error: invalid length of packet\n");
+        printf("Error: invalid length of packet (%ld:%ld)\n",
+            pkt->data_len + sizeof(uds_command_t), len);
         return 0;
     }
 
