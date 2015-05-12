@@ -12,6 +12,8 @@
 *     03/17/2014  Shengkui Leng (lengshengkui@outlook.com)
 *     - Define a common header for both request and response packets.
 *     - Receive data in a loop to make sure all data of a packet received.
+*     05/12/2015  Shengkui Leng (lengshengkui@outlook.com)
+*     - Add timeout to client(wating for server to be ready)
 *
 ******************************************************************************/
 #include <unistd.h>
