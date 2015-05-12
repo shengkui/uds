@@ -552,11 +552,12 @@ void server_close(uds_server_t *s)
  *
  * PARAMETERS:
  *      sock_path - The path of unix domain socket
+ *      timeout   - Wait the server to be ready(in seconds) 
  *
  * RETURN:
  *      A pointer of client info.
  ******************************************************************************/
-uds_client_t *client_init(const char *sock_path)
+uds_client_t *client_init(const char *sock_path, int timeout)
 {
     uds_client_t *sc;
     struct sockaddr_un addr;
@@ -580,7 +581,14 @@ uds_client_t *client_init(const char *sock_path)
     }
     sc->sockfd = fd;
 
-    rc = connect(sc->sockfd, (struct sockaddr *)&addr, sizeof(addr));
+    do {
+        rc = connect(sc->sockfd, (struct sockaddr *)&addr, sizeof(addr));
+        if (rc == 0) {
+            break;
+        } else {
+            sleep(1);
+        }
+    } while (timeout-- > 0);
     if (rc != 0) {
         perror("connect error");
         close(sc->sockfd);

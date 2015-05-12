@@ -104,10 +104,9 @@ typedef struct uds_client {
 } uds_client_t;
 
 
-uds_client_t *client_init(const char *sock_path);
+uds_client_t *client_init(const char *sock_path, int timeout);
 uds_command_t *client_send_request(uds_client_t *c, uds_command_t *req);
 void client_close(uds_client_t *s);
-
 
 
 /*--------------------------------------------------------------

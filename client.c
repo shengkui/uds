@@ -18,7 +18,7 @@ int main(void)
 {
     uds_client_t *clnt;
 
-    clnt = client_init(UDS_SOCK_PATH);
+    clnt = client_init(UDS_SOCK_PATH, 10);
     if (clnt == NULL) {
         printf("client: init error\n");
         return -1;
