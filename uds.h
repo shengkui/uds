@@ -47,14 +47,19 @@
 enum uds_command_type {
     CMD_GET_VERSION = 0x8001,   /* Get the version of server */
     CMD_GET_MESSAGE,            /* Receive a message from server */
-    CMD_PUT_MESSAGE             /* Send a message to server */
+    CMD_PUT_MESSAGE,            /* Send a message to server */
+
+    CMD_UNKNOWN                 /* */
 };
 
 /* The status code */
 enum uds_status_code {
     STATUS_SUCCESS = 0,         /* Success */
+    STATUS_ERROR = 160,         /* Generic error, Skip all system pre-defined error code */
+    STATUS_INIT_ERROR,          /* Server/client init error */
     STATUS_INVALID_COMMAND,     /* Unknown request type */
-    STATUS_ERROR                /* Generic error */
+
+    STATUS_UNKNOWN              /* */
 };
 
 /* Common header of both request/response packets */

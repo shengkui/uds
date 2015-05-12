@@ -554,7 +554,7 @@ void server_close(uds_server_t *s)
  *
  * PARAMETERS:
  *      sock_path - The path of unix domain socket
- *      timeout   - Wait the server to be ready(in seconds) 
+ *      timeout   - Wait the server to be ready(in seconds)
  *
  * RETURN:
  *      A pointer of client info.

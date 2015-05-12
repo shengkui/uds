@@ -21,7 +21,7 @@ int main(void)
     clnt = client_init(UDS_SOCK_PATH, 10);
     if (clnt == NULL) {
         printf("client: init error\n");
-        return -1;
+        return STATUS_INIT_ERROR;
     }
 
     /********************** Get version of server ***********************/
@@ -36,7 +36,7 @@ int main(void)
         if (ver == NULL) {
             printf("client: send request error\n");
             client_close(clnt);
-            return -2;
+            return STATUS_ERROR;
         }
 
         if (ver->common.status == STATUS_SUCCESS) {
@@ -65,7 +65,7 @@ int main(void)
         if (res == NULL) {
             printf("client: send request error\n");
             client_close(clnt);
-            return -3;
+            return STATUS_ERROR;
         }
 
         if (res->common.status == STATUS_SUCCESS) {
@@ -92,7 +92,7 @@ int main(void)
         if (res == NULL) {
             printf("client: send request error\n");
             client_close(clnt);
-            return -3;
+            return STATUS_ERROR;
         }
 
         if (res->status == STATUS_SUCCESS) {
@@ -116,7 +116,7 @@ int main(void)
         if (res == NULL) {
             printf("client: send request error\n");
             client_close(clnt);
-            return -3;
+            return STATUS_ERROR;
         }
 
         printf("client: response status(%d)\n", res->status);
@@ -125,5 +125,5 @@ int main(void)
     }
 
     client_close(clnt);
-    return 0;
+    return STATUS_SUCCESS;
 }

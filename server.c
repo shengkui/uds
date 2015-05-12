@@ -157,7 +157,7 @@ int main(void)
     s = server_init(UDS_SOCK_PATH, &my_request_handler);
     if (s == NULL) {
         printf("server: init error\n");
-        return -1;
+        return STATUS_INIT_ERROR;
     }
 
     install_sig_handler();
@@ -167,5 +167,5 @@ int main(void)
     }
 
     server_close(s);
-    return 0;
+    return STATUS_SUCCESS;
 }
