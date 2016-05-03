@@ -25,9 +25,6 @@
  * Definition for both client and server
  *--------------------------------------------------------------*/
 
-/* The pathname of unix domain socket */
-#define UDS_SOCK_PATH           "/tmp/uds_sock.1234"
-
 /* The socket type we used */
 #define UDS_SOCK_TYPE           SOCK_STREAM
 //#define UDS_SOCK_TYPE         SOCK_SEQPACKET
@@ -43,60 +40,22 @@
 #define BYTE_ALIGNED            __attribute__((packed))
 
 
-/* Request type */
-enum uds_command_type {
-    CMD_GET_VERSION = 0x8001,   /* Get the version of server */
-    CMD_GET_MESSAGE,            /* Receive a message from server */
-    CMD_PUT_MESSAGE,            /* Send a message to server */
+/* Status code */
+#define STATUS_SUCCESS      0   /* Success */
+#define STATUS_ERROR        1   /* Generic error */
 
-    CMD_UNKNOWN                 /* */
-};
-
-/* The status code */
-enum uds_status_code {
-    STATUS_SUCCESS = 0,         /* Success */
-    STATUS_ERROR = 160,         /* Generic error, Skip all system pre-defined error code */
-    STATUS_INIT_ERROR,          /* Server/client init error */
-    STATUS_INVALID_COMMAND,     /* Unknown request type */
-
-    STATUS_UNKNOWN              /* */
-};
 
 /* Common header of both request/response packets */
 typedef struct uds_command {
     uint32_t signature;         /* Signature, shall be UDS_SIGNATURE */
     union {
         uint32_t command;       /* Request type, refer uds_command_type */
-        uint32_t status;        /* Status code of response, refer uds_status_code */
+        uint32_t status;        /* Status code of response */
     };
     uint32_t data_len;          /* The data length of packet */
 
     uint16_t checksum;          /* The checksum of the packet */
 } BYTE_ALIGNED uds_command_t;
-
-
-/* Response for CMD_GET_VERSION */
-typedef struct uds_response_version {
-    uds_command_t common;       /* Common header of response */
-    uint8_t major;              /* Major version */
-    uint8_t minor;              /* Minor version */
-} BYTE_ALIGNED uds_response_version_t;
-
-
-/* Response for CMD_GET_MESSAGE */
-#define UDS_GET_MSG_SIZE        256
-typedef struct uds_response_get_msg {
-    uds_command_t common;           /* Common header of response */
-    char data[UDS_GET_MSG_SIZE];    /* Data from server to client */
-} BYTE_ALIGNED uds_response_get_msg_t;
-
-
-/* Request for CMD_PUT_MESSAGE */
-#define UDS_PUT_MSG_SIZE       256
-typedef struct uds_request_put_msg {
-    uds_command_t common;           /* Common header of request */
-    char data[UDS_PUT_MSG_SIZE];    /* Data from client to server */
-} BYTE_ALIGNED uds_request_put_msg_t;
 
 
 /*--------------------------------------------------------------
