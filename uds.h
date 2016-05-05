@@ -40,7 +40,7 @@
 #define BYTE_ALIGNED            __attribute__((packed))
 
 
-/* Status code */
+/* Status code, the values used in struct uds_command_t.status */
 #define STATUS_SUCCESS      0   /* Success */
 #define STATUS_ERROR        1   /* Generic error */
 
@@ -49,7 +49,7 @@
 typedef struct uds_command {
     uint32_t signature;         /* Signature, shall be UDS_SIGNATURE */
     union {
-        uint32_t command;       /* Request type, refer uds_command_type */
+        uint32_t command;       /* Request type */
         uint32_t status;        /* Status code of response */
     };
     uint32_t data_len;          /* The data length of packet */

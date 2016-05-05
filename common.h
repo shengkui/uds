@@ -21,12 +21,13 @@
  *--------------------------------------------------------------*/
 #define UDS_SOCK_PATH           "/tmp/uds.1234"
 
-/* Extra status code, refer STATUS_ERROR defined in uds.h */
+/* Extra status code, refer STATUS_ERROR defined in uds.h,
+ * the values used in struct uds_command_t.status */
 #define STATUS_INIT_ERROR       (STATUS_ERROR+1)    /* Server/client init error */
 #define STATUS_INVALID_COMMAND  (STATUS_ERROR+2)    /* Unkown request type */
 
 
-/* Request type */
+/* Request type, the values used in struct uds_command_t.command */
 enum uds_command_type {
     CMD_GET_VERSION = 0x8001,   /* Get the version of server */
     CMD_GET_MESSAGE,            /* Receive a message from server */
