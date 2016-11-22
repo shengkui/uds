@@ -1,0 +1,19 @@
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+max_line_length = 80
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_size = 4
+
+[*.{c,h,cpp,hpp,cc,cxx,sh,bash}]
+indent_style = space
+
+[*.{md,mkd,markdown}]
+end_of_line = crlf
+trim_trailing_whitespace = false
+
+[*.{txt}]
+end_of_line = crlf
